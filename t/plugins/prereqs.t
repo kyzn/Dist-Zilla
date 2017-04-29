@@ -64,16 +64,16 @@ use Test::DZil;
     $tzil->distmeta->{prereqs},
     {
       runtime => {
-        requires   => { A => 2, B => 2 },
+        requires   => { A => 2, B => 0 },
       },
       test => {
-        requires   => { A => 2, B => 2, C => 1 },
+        requires   => { A => 1, B => 1, C => 1 },
       },
       build => {
-        requires   => { A => 2, B => 2, C => 1 },
+        requires   => { A => 0, B => 2, C => 0 },
       },
     },
-    "prereqs synchronized across runtime, build & test phases",
+    "prereqs are not synchronized across runtime, build & test phases",
   );
 }
 

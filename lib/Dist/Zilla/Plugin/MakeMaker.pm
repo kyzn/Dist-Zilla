@@ -287,11 +287,33 @@ sub fallback_prereq_pm {
   my $self = shift;
   my $fallback
     = $self->_normalize_eumm_versions(
-      $self->zilla->prereqs->merged_requires
+      $self->zilla->prereqs->merged_requires->{runtime}
       ->clone
       ->clear_requirement('perl')
       ->as_string_hash
     );
+
+  for my $phase ( qw/build test/ ) {
+    my $reqs = $self->_normalize_eumm_versions(
+      $self->zilla->prereqs->merged_requires->{$phase}
+      ->clone
+      ->clear_requirement('perl')
+      ->as_string_hash
+    );
+
+    foreach my $req ( keys %{reqs} ) {
+      if( !$fallback->{$req} || $fallback->{$req} < ) {
+        warn "Key [$key2] is in both hashes!";
+        # handle the duplicate (perhaps only warning)
+        ...
+        next;
+    }
+    else {
+        $new_hash{$key2} = $hash2{$key2};
+    }
+}
+
+
   return $self->_dump_as( $fallback, '*FallbackPrereqs' );
 }
 

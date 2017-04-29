@@ -52,9 +52,13 @@ has cpan_meta_prereqs => (
 # not have it in its fallback prereqs.
 has merged_requires => (
   is => 'ro',
-  isa => 'CPAN::Meta::Requirements',
+  isa => 'HashRef',
   init_arg => undef,
-  default => sub { CPAN::Meta::Requirements->new },
+  default => sub {{
+    runtime => CPAN::Meta::Requirements->new,
+    build   => CPAN::Meta::Requirements->new,
+    test    => CPAN::Meta::Requirements->new,
+  }},
 );
 
 =method register_prereqs
@@ -110,7 +114,7 @@ sub sync_runtime_build_test_requires {
   # first pass: generated merged requirements
   for my $phase ( qw/runtime build test/ ) {
     my $req = $self->requirements_for($phase, 'requires');
-    $self->merged_requires->add_requirements( $req );
+    $self->merged_requires->{$phase}->add_requirements( $req );
   };
 
   # second pass: update from merged requirements
@@ -119,7 +123,7 @@ sub sync_runtime_build_test_requires {
     for my $mod ( $req->required_modules ) {
       $req->clear_requirement( $mod );
       $req->add_string_requirement(
-        $mod => $self->merged_requires->requirements_for_module($mod)
+        $mod => $self->merged_requires->{$phase}->requirements_for_module($mod)
       );
     }
   }
